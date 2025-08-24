@@ -8,7 +8,7 @@ repository = "https://thunderstore.io"
 namespace = "Yueby"
 name = "AlwaysDisplayPlayerName"
 description = "Always displays player names and distance to other players."
-websiteUrl = "" # TODO: Add a link to your mod repository here (optional)
+websiteUrl = "https://github.com/Yueby/AlwaysDisplayPlayerName"
 containsNsfwContent = false
 
 [package.dependencies]
