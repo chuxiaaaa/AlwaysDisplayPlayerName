@@ -7,15 +7,17 @@ using AlwaysDisplayPlayerName.Components;
 
 namespace AlwaysDisplayPlayerName.Patches
 {
-    public class IsLookedAtPatches
+    [HarmonyPatch(typeof(IsLookedAt))]
+    [HarmonyWrapSafe]
+    public static class IsLookedAtPatches
     {
         /// <summary>
         /// 补丁IsLookedAt.Update方法，更新PlayerName的可见性
         /// </summary>
         /// <param name="__instance">IsLookedAt实例</param>
-        [HarmonyPatch(typeof(IsLookedAt), "Update")]
+        [HarmonyPatch("Update")]
         [HarmonyPrefix]
-        private static bool IsLookAtUpdatePath(IsLookedAt __instance)
+        public static bool IsLookAtUpdatePath(IsLookedAt __instance)
         {
             if (!Plugin.configEnable.Value)
             {
@@ -45,9 +47,9 @@ namespace AlwaysDisplayPlayerName.Patches
         /// 补丁IsLookedAt.Start方法，在PlayerName对象初始化时创建距离显示
         /// </summary>
         /// <param name="__instance">IsLookedAt实例</param>
-        [HarmonyPatch(typeof(IsLookedAt), "Start")]
+        [HarmonyPatch("Start")]
         [HarmonyPostfix]
-        private static void IsLookedAtStartPatch(IsLookedAt __instance)
+        public static void IsLookedAtStartPatch(IsLookedAt __instance)
         {
             if (__instance == null || GUIManager.instance?.playerNames == null || __instance.characterInteractible.character == Character.localCharacter)
             {

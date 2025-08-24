@@ -3,6 +3,7 @@ using TMPro;
 using HarmonyLib;
 using System;
 using AlwaysDisplayPlayerName.Common;
+using AlwaysDisplayPlayerName.Compatibility;
 
 namespace AlwaysDisplayPlayerName.Components
 {
@@ -234,13 +235,24 @@ namespace AlwaysDisplayPlayerName.Components
         /// 设置距离可见性
         /// </summary>
         /// <param name="visible">可见性</param>
-        private void SetDistanceVisibility(bool visible)
+        private void SetDistanceVisibility(bool visible, bool setParent = false)
         {
             // 如果画布组不为空，则设置画布组透明度
             if (_canvasGroup != null)
             {
                 _canvasGroup.alpha = visible ? 1f : 0f;
+                if (setParent)
+                {
+                    var distanceDisplay = _canvasGroup.gameObject;
+                    var text = distanceDisplay.transform.parent.gameObject;
+                    var textMeshProUGUI = text.GetComponentInChildren<TextMeshProUGUI>();
+                    if (textMeshProUGUI != null)
+                    {
+                        textMeshProUGUI.enabled = visible;
+                    }
+                }
             }
+
         }
 
         /// <summary>
@@ -269,7 +281,6 @@ namespace AlwaysDisplayPlayerName.Components
                 Plugin.Log.LogDebug($"Player character is observed character");
                 return false;
             }
-
             return true;
         }
 
@@ -278,9 +289,22 @@ namespace AlwaysDisplayPlayerName.Components
         /// </summary>
         private void UpdateDistance()
         {
-            // 设置距离可见性
-            SetDistanceVisibility(true);
-
+            if (PeakCinema_Compat.Loaded)
+            {
+                if (PeakCinema_Compat.Cinema != null && PeakCinema_Compat.Cinema.on)
+                {
+                    SetDistanceVisibility(false, true);
+                }
+                else
+                {
+                    SetDistanceVisibility(true, true);
+                }
+            }
+            else
+            {
+                // 设置距离可见性
+                SetDistanceVisibility(true);
+            }
             // 计算距离
             var distance = Vector3.Distance(Character.observedCharacter.Center, _playerName.characterInteractable.character.Center);
             distanceText.text = $"{distance:F1}m";
