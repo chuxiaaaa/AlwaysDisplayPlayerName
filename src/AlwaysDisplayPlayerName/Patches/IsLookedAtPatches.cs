@@ -124,7 +124,7 @@ namespace AlwaysDisplayPlayerName.Patches
             distanceText.font = originalPlayerName.text.font;
             distanceText.fontSize = originalPlayerName.text.fontSize * 1.4f;
             distanceText.color = Color.white;
-            
+
             // 使用相同材质
             if (originalPlayerName.text.fontSharedMaterial != null)
                 distanceText.fontSharedMaterial = originalPlayerName.text.fontSharedMaterial;
