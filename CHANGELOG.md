@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.14] - 2025-08-25
 
 ### Changed
-- Fixed issue where Harmony patch was not being applied correctly. (@chuxiaaaa)
-- Added PeakCinema compatibility (@chuxiaaaa)
+- Fixed issue where Harmony patch was not being applied correctly. (by [@chuxiaaaa](https://github.com/Yueby/AlwaysDisplayPlayerName/pull/1))
+- Added PeakCinema compatibility (by [@chuxiaaaa](https://github.com/Yueby/AlwaysDisplayPlayerName/pull/1))
 
 ## [0.1.13] - 2025-08-24
 
