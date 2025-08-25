@@ -112,17 +112,22 @@ namespace AlwaysDisplayPlayerName.Patches
             var layoutElement = distanceObj.AddComponent<LayoutElement>();
             layoutElement.ignoreLayout = true;
 
-            // 设置父对象
-            distanceRect.SetParent(originalTextRect.parent);
+            // 设置父对象为playerName.text
+            distanceRect.SetParent(originalTextRect);
 
             // 添加TMP_Text组件
             var distanceText = distanceObj.AddComponent<TextMeshProUGUI>();
+
+            // 记录字体大小信息
+            var originalFontSize = originalPlayerName.text.fontSize;
+            var distanceFontSize = originalFontSize * 1.4f;
+            // Plugin.Log.LogInfo($"Font size info - Original: {originalFontSize}, Distance: {distanceFontSize}");
 
             // 设置文本属性
             distanceText.text = "0.0m";
             distanceText.alignment = TextAlignmentOptions.Center;
             distanceText.font = originalPlayerName.text.font;
-            distanceText.fontSize = originalPlayerName.text.fontSize * 1.4f;
+            distanceText.fontSize = distanceFontSize;
             distanceText.color = Color.white;
 
             // 使用相同材质

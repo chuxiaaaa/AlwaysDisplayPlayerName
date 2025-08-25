@@ -13,8 +13,10 @@ namespace AlwaysDisplayPlayerName.Components
     public class ShowPlayerDistance : MonoBehaviour
     {
         private const float UPDATE_INTERVAL = 0.1f;
-        private const float DISTANCE_OFFSET_Y = 5f;
-        private const float HEIGHT_MULTIPLIER = 0.5f;
+
+        // 固定距离文本尺寸常量
+        private const float FIXED_DISTANCE_WIDTH = 200f;
+        private const float FIXED_DISTANCE_HEIGHT = 50f;
 
         /// <summary>
         /// 距离文本
@@ -35,6 +37,11 @@ namespace AlwaysDisplayPlayerName.Components
         /// 是否显示距离
         /// </summary>
         private bool _shouldShowDistance = false;
+
+        /// <summary>
+        /// 是否已经设置过位置
+        /// </summary>
+        private bool _hasSetPosition = false;
 
         /// <summary>
         /// 上一次角色
@@ -101,7 +108,7 @@ namespace AlwaysDisplayPlayerName.Components
             }
             else
             {
-                SetDistanceVisibility(false);
+                SetVisibility(false);
             }
         }
 
@@ -125,7 +132,9 @@ namespace AlwaysDisplayPlayerName.Components
             _distanceRect.anchorMin = _playerNameRect.anchorMin;
             _distanceRect.anchorMax = _playerNameRect.anchorMax;
             _distanceRect.pivot = _playerNameRect.pivot;
-            _distanceRect.anchoredPosition = _playerNameRect.anchoredPosition;
+
+            // 设置固定尺寸
+            _distanceRect.sizeDelta = new Vector2(FIXED_DISTANCE_WIDTH * 2f, FIXED_DISTANCE_HEIGHT);
 
             Plugin.Log.LogInfo($"ShowPlayerDistance initialized for character: {targetPlayerName?.characterInteractable?.character?.name ?? "Unknown"} with child: {targetPlayerName?.name ?? "Unknown"}");
 
@@ -137,7 +146,7 @@ namespace AlwaysDisplayPlayerName.Components
             // 如果距离显示状态为false，则不显示距离
             if (!_shouldShowDistance)
             {
-                SetDistanceVisibility(false);
+                SetVisibility(false);
             }
         }
 
@@ -168,7 +177,7 @@ namespace AlwaysDisplayPlayerName.Components
                 // 如果配置显示距离为false，则不显示距离
                 if (!_shouldShowDistance)
                 {
-                    SetDistanceVisibility(false);
+                    SetVisibility(false);
                     return;
                 }
 
@@ -179,7 +188,7 @@ namespace AlwaysDisplayPlayerName.Components
             {
                 Plugin.Log.LogError($"Error in OnUpdate: {e.Message}");
 
-                SetDistanceVisibility(false);
+                SetVisibility(false);
                 _shouldShowDistance = false;
             }
         }
@@ -191,38 +200,18 @@ namespace AlwaysDisplayPlayerName.Components
         {
             try
             {
-                if (_shouldShowDistance && _playerName.text != null)
+                if (_shouldShowDistance && _playerName.text != null && !_hasSetPosition)
                 {
-                    // 使用缓存的RectTransform引用
-                    var playerNameSize = _playerNameRect.sizeDelta;
                     var playerNamePos = _playerNameRect.anchoredPosition;
-                    var playerNameHeight = playerNameSize.y;
-                    var distanceHeight = _distanceRect.sizeDelta.y;
 
-                    // 持续同步Y坐标位置
-                    var targetY = playerNamePos.y + playerNameHeight + distanceHeight * HEIGHT_MULTIPLIER + DISTANCE_OFFSET_Y;
+                    // 设置X和Y坐标位置
+                    var initialY = playerNamePos.y + FIXED_DISTANCE_HEIGHT + FIXED_DISTANCE_HEIGHT * 0.5f + 5f;
+                    var playerNameCenterX = playerNamePos.x + _playerNameRect.sizeDelta.x * (0.5f - _playerNameRect.pivot.x);
+                    var targetX = playerNameCenterX - FIXED_DISTANCE_WIDTH * (0.5f - _distanceRect.pivot.x);
 
-                    // 如果父对象不同，先设置好宽度和X坐标
-                    if (_distanceRect.parent != _playerNameRect)
-                    {
-                        // 先设置尺寸和X坐标
-                        _distanceRect.sizeDelta = new Vector2(playerNameSize.x * 3f, playerNameSize.y);
-
-                        // 考虑锚点计算居中的X位置
-                        var playerNameCenterX = playerNamePos.x + playerNameSize.x * (0.5f - _playerNameRect.pivot.x);
-                        var targetX = playerNameCenterX - _distanceRect.sizeDelta.x * (0.5f - _distanceRect.pivot.x);
-
-                        // 先设置X坐标，Y坐标等设置父对象后再同步
-                        _distanceRect.anchoredPosition = new Vector2(targetX, targetY);
-
-                        // 然后设置父对象
-                        _distanceRect.SetParent(_playerNameRect, true);
-                        Plugin.Log.LogInfo($"Sync UI for character: {_playerName.characterInteractable.character.name}");
-                    }
-
-                    // 只更新Y坐标，保持X坐标不变，为什么要一直更新是因为偶尔会看到位置比较高，不在理想位置，所以需要一直更新（偷懒）
-                    var currentPos = _distanceRect.anchoredPosition;
-                    _distanceRect.anchoredPosition = new Vector2(currentPos.x, targetY);
+                    _distanceRect.anchoredPosition = new Vector2(targetX, initialY);
+                    _hasSetPosition = true;
+                    Plugin.Log.LogInfo($"Sync UI for character: {_playerName.characterInteractable.character.name}");
                 }
             }
             catch (Exception e)
@@ -235,21 +224,16 @@ namespace AlwaysDisplayPlayerName.Components
         /// 设置距离可见性
         /// </summary>
         /// <param name="visible">可见性</param>
-        private void SetDistanceVisibility(bool visible, bool setParent = false)
+        private void SetVisibility(bool visible, bool setParentVisible = false)
         {
             // 如果画布组不为空，则设置画布组透明度
             if (_canvasGroup != null)
             {
                 _canvasGroup.alpha = visible ? 1f : 0f;
-                if (setParent)
+                if (setParentVisible)
                 {
-                    var distanceDisplay = _canvasGroup.gameObject;
-                    var text = distanceDisplay.transform.parent.gameObject;
-                    var textMeshProUGUI = text.GetComponentInChildren<TextMeshProUGUI>();
-                    if (textMeshProUGUI != null)
-                    {
-                        textMeshProUGUI.enabled = visible;
-                    }
+                    if (_playerName.text != null)
+                        _playerName.text.enabled = visible;
                 }
             }
 
@@ -293,17 +277,17 @@ namespace AlwaysDisplayPlayerName.Components
             {
                 if (PeakCinema_Compat.Cinema != null && PeakCinema_Compat.Cinema.on)
                 {
-                    SetDistanceVisibility(false, true);
+                    SetVisibility(false, true);
                 }
                 else
                 {
-                    SetDistanceVisibility(true, true);
+                    SetVisibility(true, true);
                 }
             }
             else
             {
                 // 设置距离可见性
-                SetDistanceVisibility(true);
+                SetVisibility(true);
             }
             // 计算距离
             var distance = Vector3.Distance(Character.observedCharacter.Center, _playerName.characterInteractable.character.Center);
