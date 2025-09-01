@@ -164,7 +164,7 @@ namespace AlwaysDisplayPlayerName.Components
             try
             {
                 // 如果角色发生变化，则更新角色
-                var current = _playerName.characterInteractable.character;
+                var current = _playerName?.characterInteractable?.character;
                 if (current == null || current != _lastCharacter)
                 {
                     Plugin.Log.LogInfo($"Character changed, updating state");
@@ -186,7 +186,7 @@ namespace AlwaysDisplayPlayerName.Components
             }
             catch (Exception e)
             {
-                Plugin.Log.LogError($"Error in OnUpdate: {e.Message}");
+                Plugin.Log.LogError($"Error in OnUpdate: {e.ToString()}");
 
                 SetVisibility(false);
                 _shouldShowDistance = false;
@@ -216,7 +216,7 @@ namespace AlwaysDisplayPlayerName.Components
             }
             catch (Exception e)
             {
-                Plugin.Log.LogError($"Error in OnUISync: {e.Message}");
+                Plugin.Log.LogError($"Error in OnUISync: {e.ToString()}");
             }
         }
 
