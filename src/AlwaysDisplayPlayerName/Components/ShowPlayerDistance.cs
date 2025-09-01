@@ -155,7 +155,7 @@ namespace AlwaysDisplayPlayerName.Components
             try
             {
                 // 如果角色发生变化，则更新角色
-                var current = _playerName.characterInteractable.character;
+                var current = _playerName?.characterInteractable?.character;
                 if (current == null || current != _lastCharacter)
                 {
                     Plugin.Log.LogInfo($"Character changed, updating state");
@@ -177,7 +177,7 @@ namespace AlwaysDisplayPlayerName.Components
             }
             catch (Exception e)
             {
-                Plugin.Log.LogError($"Error in OnUpdate: {e.Message}");
+                Plugin.Log.LogError($"Error in OnUpdate: {e.ToString()}");
 
                 SetDistanceVisibility(false);
                 _shouldShowDistance = false;
@@ -191,7 +191,7 @@ namespace AlwaysDisplayPlayerName.Components
         {
             try
             {
-                if (_shouldShowDistance && _playerName.text != null)
+                if (_shouldShowDistance && _playerName?.text != null)
                 {
                     // 使用缓存的RectTransform引用
                     var playerNameSize = _playerNameRect.sizeDelta;
@@ -227,7 +227,7 @@ namespace AlwaysDisplayPlayerName.Components
             }
             catch (Exception e)
             {
-                Plugin.Log.LogError($"Error in OnUISync: {e.Message}");
+                Plugin.Log.LogError($"Error in OnUISync: {e.ToString()}");
             }
         }
 
