@@ -17,7 +17,7 @@ namespace AlwaysDisplayPlayerName.Compatibility
                 if (_cinemaCamera == null && Time.time - lastFindTime > 1f)
                 {
                     lastFindTime = Time.time;
-                   _cinemaCamera = UnityEngine.Object.FindAnyObjectByType<CinemaCamera>();
+                    _cinemaCamera = UnityEngine.Object.FindAnyObjectByType<CinemaCamera>();
                 }
                 return _cinemaCamera;
             }
